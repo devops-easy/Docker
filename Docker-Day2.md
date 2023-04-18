@@ -25,10 +25,18 @@ sudo usermod -aG docker <username>
 #exit and relogin
 docker info
 # This command should not give any errors
+
+
 ```
 * For docker commands use cheatsheet [Refer Here](https://docs.docker.com/get-started/docker_cheatsheet.pdf) for docker cheatsheet.
+
+![Preview](./Images/dockerworkflow.png)
+
+
 ![Preview](./Images/docker-workflow.png)
 ![Preview](./Images/docker-version.png)
+
+![Preview](./Images/docker-image.png)
 * Lets try to run the following container
 
 ```
