@@ -77,4 +77,5 @@ CMD ["echo", "Welcome to container world"]
 
 * Lets run the container from the image
 
+![Preview](./Images/docker15.png)
 
