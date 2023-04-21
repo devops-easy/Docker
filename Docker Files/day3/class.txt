@@ -1,0 +1,2 @@
+## vm vs docker 
+docker container run -it alpine /bin/sh
