@@ -135,8 +135,26 @@ docker image build -t userdemo:1.0 .
 EXPOSE <port>
 EXPOSE <port>/<protocol>
 ```
+## Accessing the applications inside docker containers
+* From now the machine where we have installed docker will referred as host and the docker container will be referred as container
+* We have access to host network & as of now containers are created in private container network, so to access applications inside containers we use port-forwording
 * Ports exposed Expose instruction will only be accesible within docker container
 * To access the ports from the host we can use ``` -p <host-port>:<container-port> or -P ```
+
+![Preview](./Images/docker-port.png)
+
+* command: ``` docker container run -d -p <host-port>:<container-port> <image> ```
+* Create a nginx container and expose on port 30000 ``` docker container run -d -p 30000:80 --name nginx1 nginx ```
+
+* Create a jenkins container & expose 8080 port on 30001 port of host ``` docker container run -d -p 30001:8080 --name jenkins1 jenkins/jenkins ```
+* To assing any random free port on host to container port ``` docker container run -d -P image ```
+* Lets create 3 nginx containers
+
+```
+docker container run -d --name ng1 -P nginx
+docker container run -d --name ng2 -P nginx
+docker container run -d --name ng3 -P nginx
+```
 
 ```
 docker container run -d -p 8080:80 --name apache1 httpd
@@ -158,3 +176,128 @@ EXPOSE 80
 CMD ["apache2ctl", "-D", "FOREGROUND"]
 ```
 ![Preview](./Images/docker-healthcheck.png)
+## ENTRYPOINT & CMD
+* Create a Docker container with any base image of your choice which will print  ``` Hello Docker ``` when the container is STARTED
+
+```
+FROM alpine
+CMD ["echo", "Hello Docker"]
+```
+* Lets do some experiments
+
+```
+docker container run cmd:1.0 
+
+docker container run cmd:1.0 pwd
+```
+* Whatever is written in CMD can be overriten by passing arguments after image name in docker container run ``` docker container run cmd:1.0 <any command> ```
+* Now consider the following dockerfile
+
+```
+FROM alpine
+ENTRYPOINT ["echo"]
+CMD ["Hello Docker"]
+```
+* Now build the image 
+
+```
+docker image build -t cmd-ent:1 .
+```
+* Now run the container
+
+```
+docker container run cmd-ent:1 
+
+docker container run cmd-ent:1 pwd
+
+docker container run cmd-ent:1 Docker
+
+## test
+echo pwd
+echo Docker
+```
+* ENTRYPOINT is the fixed command that gets started when container is created and cannot be overriten whereas whatever is written in CMD can be overriten
+
+## CMD
+* This instruction is executed when the container is created and can be overritten by passing arguments when creating container 
+
+## ENTRYPOINT
+* This instruction is executed when the container is created and cannot be overritten by passing arguments when creating container
+* Generally in entrypoint we give executable path and in CMD we give arguments for the containers where the command to be executed when starting containers is fixed.
+
+```
+java -jar spc.jar
+
+
+Give flexibility to run anything during creating container
+
+CMD ["java", "-jar", "spc.jar"]
+
+
+Dont give flexibility
+ENTRYPOINT ["java", "-jar", "spc.jar"]
+
+Give option on arguments to be passed
+ENTRYPOINT ["java"]
+CMD ["-jar", "spc.jar"]
+```
+### ENTRYPOINT and CMD Example
+1. Create a image with tag testing:1.0 with the following Dockerfile
+
+```
+FROM amazoncorretto:11-alpine-jdk
+ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/spring-petclinic.jar"]
+```
+2. Create a image with tag testing:2.0 with the following Dockerfile
+```
+FROM amazoncorretto:11-alpine-jdk
+ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
+EXPOSE 8080
+CMD ["java","-jar","/spring-petclinic.jar"]
+```
+* Create a image with tag testing:3.0 with the following Dockerfile
+```
+FROM amazoncorretto:11-alpine-jdk
+ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
+EXPOSE 8080
+ENTRYPOINT ["java"]
+CMD ["-jar",  "/spring-petclinic.jar"]
+```
+4. Execute docker image ls 
+5. Now execute the following commands
+
+```
+docker container run -P -d testing:1.0
+docker container run -P -d testing:2.0
+docker container run -P -d testing:3.0
+docker container ls
+```
+6. To the container run command we can pass arguments 
+
+![Preview](./Images/cmd-entrypoint.png)
+
+7. ENTRYPOINT cannot be changed with args but whatever we write in CMD can be overwritten with args 
+
+
+![Preview](./Images/cmd-entrypoint1.png)
+
+```
+# no impact on application startup
+docker container run -P testing:1.0 echo helloworld
+
+# startup is changed
+docker container run -P testing:2.0 echo helloworld
+
+# startup is notchanged but the arguments are changed
+docker container run -P testing:3.0 echo helloworld
+```
+
+![Preview](./Images/cmd-entrypoint2.png)
+
+
+![Preview](./Images/cmd-entrypoint3.png)
+
+
+![Preview](./Images/cmd-entrypoint4.png)
