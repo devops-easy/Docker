@@ -43,7 +43,7 @@ CMD [ "catalina.sh","run" ]
 ```
 * Now build the docker image
 
-![Preview](./Images/env1.png)
+![Preview](./Images/env1.PNG)
 
 ![Preview](./Images/env2.png)
 
