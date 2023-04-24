@@ -19,9 +19,9 @@ CMD [ "catalina.sh","run" ]
 ```
 * Now build the image 
 
-![Preview](./Images/arg1.png)
+![Preview](./Images/arg1.PNG)
 
-![Preview](./Images/arg2.png)
+![Preview](./Images/arg2.PNG)
 
 * ENV variables will be available in the containers also
 
@@ -45,7 +45,7 @@ CMD [ "catalina.sh","run" ]
 
 ![Preview](./Images/env1.PNG)
 
-![Preview](./Images/env2.png)
+![Preview](./Images/env2.PNG)
 
 ## WORKDIR instruction
 * By default if we donot specify the default working directory is /
@@ -60,9 +60,9 @@ CMD ["java","-jar","/spring-petclinic.jar"]
 ```
 * Now build the docker image
 
-![Preview](./Images/wrk1.png)
+![Preview](./Images/wrk1.PNG)
 
-![Preview](./Images/wrk2.png)
+![Preview](./Images/wrk2.PNG)
 
 ## ADD and COPY instruction
 * During the docker image build process we might require to copy files from our local system into docker image filesystem. This can be acheived by using COPY/ADD instruction
