@@ -8,7 +8,6 @@ RUN ls /spring-petclinic
 RUN cd /spring-petclinic && mvn package
 
 
-
 FROM amazoncorretto:17-alpine-jdk
 LABEL author="devopseasy"
 EXPOSE 8080
@@ -17,3 +16,5 @@ WORKDIR ${HOME_DIR}
 COPY --from=builder /spring-petclinic/target/spring-*.jar ${HOME_DIR}/spring-petclinic.jar
 EXPOSE 8080
 CMD ["java", "-jar", "spring-petclinic.jar"]
+
+

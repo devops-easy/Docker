@@ -149,3 +149,7 @@ docker image push devopseasy/spc:3.0.0
 ## Azure ACR
 
 *  [Refer Here](https://learn.microsoft.com/en-us/azure/container-instances/container-instances-tutorial-prepare-acr) for detailed information
+
+* Docker Workflow [Refer Here](https://docs.docker.com/get-started/overview/)
+
+[Preview](./Images/docker-high-level-workflow.png)

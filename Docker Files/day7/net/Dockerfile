@@ -23,3 +23,4 @@ COPY --from=extractor  /nopCommerce ${HOME_DIR}
 EXPOSE 5000
 ENV ASPNETCORE_URLS="http://0.0.0.0:5000"
 CMD [ "dotnet", "Nop.Web.dll"]
+

@@ -9,3 +9,7 @@ FROM tomcat:9-jdk8
 LABEL author="devopseasy" organization="de"
 COPY --from=builder /game-of-life/gameoflife-web/target/*.war /usr/local/tomcat/webapps/gameoflife.war
 EXPOSE 8080
+
+
+
+
