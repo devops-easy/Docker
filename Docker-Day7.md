@@ -152,4 +152,4 @@ docker image push devopseasy/spc:3.0.0
 
 * Docker Workflow [Refer Here](https://docs.docker.com/get-started/overview/)
 
-* [Preview](./Images/docker-high-level-workflow.png)
+* ![Preview](./Images/docker-high-level-workflow.png)
