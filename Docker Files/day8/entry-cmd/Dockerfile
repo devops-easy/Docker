@@ -3,3 +3,4 @@ ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclin
 EXPOSE 8080
 ENTRYPOINT ["java"]
 CMD ["-jar",  "/spring-petclinic.jar"]
+
