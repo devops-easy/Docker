@@ -1,111 +1,203 @@
-### Application Deployment using Docker
+## USER, HEALTHCHECK and EXPOSE instructions
+* Docker will use the root as the default user in the docker containers
+* USER instruction can change this behavior and specify a non -root user ad default user
 
-## Java Application Deployment
-* First write a Dockerfile
+```
+USER <user>
+USER <user>:group
+```
+* Lets create a Dockerfile based on Apache Server
 
-```Dockerfile
-FROM amazoncorretto:11
+```
+FROM ubuntu:18.04
+LABEL author="Josef Jackson"
+LABEL organization="DevopsEasy"
+RUN apt update && apt-get install apache2 -y
+USER www-data
+CMD ["whoami"]
+```
+* Now build the docker image
+
+```
+docker image build -t userdemo:1.0 .
+```
+![Preview](./Images/docker-user1.png)
+
+* Create a container and keep it running in the background
+
+![Preview](./Images/docker-user2.png)
+
+![Preview](./Images/docker-user3.png)
+
+* EXPOSE instruction is used to inform Docker that a container is listenting on the specified port at run time
+
+```
+EXPOSE <port>
+EXPOSE <port>/<protocol>
+```
+## Accessing the applications inside docker containers
+* From now the machine where we have installed docker will referred as host and the docker container will be referred as container
+* We have access to host network & as of now containers are created in private container network, so to access applications inside containers we use port-forwording
+* Ports exposed Expose instruction will only be accesible within docker container
+* To access the ports from the host we can use ``` -p <host-port>:<container-port> or -P ```
+
+![Preview](./Images/docker-port.png)
+
+* command: ``` docker container run -d -p <host-port>:<container-port> <image> ```
+* Create a nginx container and expose on port 30000 ``` docker container run -d -p 30000:80 --name nginx1 nginx ```
+
+* Create a jenkins container & expose 8080 port on 30001 port of host ``` docker container run -d -p 30001:8080 --name jenkins1 jenkins/jenkins ```
+* To assing any random free port on host to container port ``` docker container run -d -P image ```
+* Lets create 3 nginx containers
+
+```
+docker container run -d --name ng1 -P nginx
+docker container run -d --name ng2 -P nginx
+docker container run -d --name ng3 -P nginx
+```
+
+```
+docker container run -d -p 8080:80 --name apache1 httpd
+docker container run -d -P --name apache1 httpd
+```
+
+* To verify if the application is running or not we can create HEALTHCHECK insturction
+
+```
+HEALTHCHECK --internal=1m --timeout=2s --retries=3 CMD curl -f http://localhost/ || exit 1
+```
+```
+FROM ubuntu:18.04
+LABEL author="Josef Jackson"
+LABEL organization="DevopsEasy"
+RUN apt update && apt-get install apache2 -y && apt install curl -y
+HEALTHCHECK CMD curl -f http://localhost/ || exit 1
+EXPOSE 80
+CMD ["apache2ctl", "-D", "FOREGROUND"]
+```
+![Preview](./Images/docker-healthcheck.png)
+## ENTRYPOINT & CMD
+* Create a Docker container with any base image of your choice which will print  ``` Hello Docker ``` when the container is STARTED
+
+```
+FROM alpine
+CMD ["echo", "Hello Docker"]
+```
+* Lets do some experiments
+
+```
+docker container run cmd:1.0 
+
+docker container run cmd:1.0 pwd
+```
+* Whatever is written in CMD can be overriten by passing arguments after image name in docker container run ``` docker container run cmd:1.0 <any command> ```
+* Now consider the following dockerfile
+
+```
+FROM alpine
+ENTRYPOINT ["echo"]
+CMD ["Hello Docker"]
+```
+* Now build the image 
+
+```
+docker image build -t cmd-ent:1 .
+```
+* Now run the container
+
+```
+docker container run cmd-ent:1 
+
+docker container run cmd-ent:1 pwd
+
+docker container run cmd-ent:1 Docker
+
+## test
+echo pwd
+echo Docker
+```
+* ENTRYPOINT is the fixed command that gets started when container is created and cannot be overriten whereas whatever is written in CMD can be overriten
+
+## CMD
+* This instruction is executed when the container is created and can be overritten by passing arguments when creating container 
+
+## ENTRYPOINT
+* This instruction is executed when the container is created and cannot be overritten by passing arguments when creating container
+* Generally in entrypoint we give executable path and in CMD we give arguments for the containers where the command to be executed when starting containers is fixed.
+
+```
+java -jar spc.jar
+
+
+Give flexibility to run anything during creating container
+
+CMD ["java", "-jar", "spc.jar"]
+
+
+Dont give flexibility
+ENTRYPOINT ["java", "-jar", "spc.jar"]
+
+Give option on arguments to be passed
+ENTRYPOINT ["java"]
+CMD ["-jar", "spc.jar"]
+```
+### ENTRYPOINT and CMD Example
+1. Create a image with tag testing:1.0 with the following Dockerfile
+
+```
+FROM amazoncorretto:11-alpine-jdk
 ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
 EXPOSE 8080
-CMD ["java", "-jar", "/spring-petclinic.jar"]
-
-
-FROM tomcat:8-jdk8
+ENTRYPOINT ["java","-jar","/spring-petclinic.jar"]
+```
+2. Create a image with tag testing:2.0 with the following Dockerfile
+```
+FROM amazoncorretto:11-alpine-jdk
+ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
 EXPOSE 8080
-ADD https://gameoflife-devopseasy.s3.us-west-2.amazonaws.com/gameoflife.war /usr/local/tomcat/webapps/gameoflife.war
-CMD ["catalina.sh", "run"]
+CMD ["java","-jar","/spring-petclinic.jar"]
 ```
-* Now build this Dockerfile & create image
+* Create a image with tag testing:3.0 with the following Dockerfile
 ```
-docker image build -t gof:1 .
+FROM amazoncorretto:11-alpine-jdk
+ADD https://springpetclinic-devopseasy.s3.us-west-2.amazonaws.com/spring-petclinic.jar /spring-petclinic.jar
+EXPOSE 8080
+ENTRYPOINT ["java"]
+CMD ["-jar",  "/spring-petclinic.jar"]
 ```
-* Now create a docker container
+4. Execute docker image ls 
+5. Now execute the following commands
 
 ```
-docker container run -d -P gof:1
+docker container run -P -d testing:1.0
+docker container run -P -d testing:2.0
+docker container run -P -d testing:3.0
+docker container ls
 ```
-## .Net Application Deployment
-* First write Dockerfile
+6. To the container run command we can pass arguments 
 
-```Dockerfile
-FROM ubuntu:22.04 as unzip
-RUN mkdir /Nop
-RUN apt update && \
-    apt install wget unzip -y && \
-    cd /Nop && \
-    wget "https://github.com/nopSolutions/nopCommerce/releases/download/release-4.50.3/nopCommerce_4.50.3_NoSource_linux_x64.zip" &&\
-    unzip /Nop/nopCommerce_4.50.3_NoSource_linux_x64.zip && \
-    rm /Nop/nopCommerce_4.50.3_NoSource_linux_x64.zip
+![Preview](./Images/cmd-entrypoint.png)
+
+7. ENTRYPOINT cannot be changed with args but whatever we write in CMD can be overwritten with args 
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
-LABEL author="devopseasy"
-COPY  --from=unzip /Nop /Nop
-WORKDIR /Nop
-EXPOSE 80
-CMD ["dotnet","/Nop/Nop.Web.dll"]
+![Preview](./Images/cmd-entrypoint1.png)
+
 ```
-* Crete Docker image & Docker container 
+# no impact on application startup
+docker container run -P testing:1.0 echo helloworld
 
-## Python Application Deployment
-* First write Dockerfile
+# startup is changed
+docker container run -P testing:2.0 echo helloworld
 
-```Dockerfile
-FROM python:3.10-bullseye
-LABEL author = "devopseasy"
-EXPOSE 5000
-RUN git clone https://github.com/Sysnove/flask-hello-world.git && \
-    cd flask-hello-world && \
-    mv hello.py app.py && \
-    pip3 install flask
-WORKDIR /flask-hello-world
-CMD ["flask", "run", "-h", "0.0.0.0"]
-
-## alpine thin image
-
-FROM python:3-alpine3.10
-LABEL author = "devopseasy"
-EXPOSE 5000
-RUN mkdir /flask-hello-world
-ADD . /flask-hello-world
-RUN cd flask-hello-world && \
-    pip3 install flask
-WORKDIR /flask-hello-world
-CMD ["flask", "run", "-h", "0.0.0.0"]
+# startup is notchanged but the arguments are changed
+docker container run -P testing:3.0 echo helloworld
 ```
-* Create docker image & run container
 
-## Nodejs with Angular
-* write Dockerfife
-
-```Dockerfile
-FROM node:16
-LABEL project="devopseasy"
-LABEL author="docker-devops"
-RUN git clone https://github.com/gothinkster/angular-realworld-example-app.git
-RUN cd angular-realworld-example-app && npm install -g @angular/cli && npm install
-EXPOSE 4200
-WORKDIR /angular-realworld-example-app
-CMD ["ng", "serve", "--host", "0.0.0.0"]
-```
-* create docker image & container
-
-## ReactJS Application Deployment
-* First create dockerfile
-```Dockerfile
-FROM node:14
-LABEL author=devopseasy
-EXPOSE 3000
-RUN git clone https://github.com/simonplend/example-app-nodejs-backend-react-frontend.git && \
-    cd example-app-nodejs-backend-react-frontend && \
-    npm install && \
-    npm run build
-WORKDIR /example-app-nodejs-backend-react-frontend
-CMD ["npm", "start", "--host", "0.0.0.0"]
-```
-* create docker image and container
-* Docker Life Cycle Overview:
-
-![Preview](./Images/container-overview.png)
+![Preview](./Images/cmd-entrypoint2.png)
 
 
+![Preview](./Images/cmd-entrypoint3.png)
+
+
+![Preview](./Images/cmd-entrypoint4.png)
