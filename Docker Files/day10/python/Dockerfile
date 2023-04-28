@@ -8,3 +8,5 @@ RUN git clone https://github.com/Sysnove/flask-hello-world.git && \
 WORKDIR /flask-hello-world
 CMD ["flask", "run", "-h", "0.0.0.0"]
 
+
+
