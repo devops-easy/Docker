@@ -46,7 +46,7 @@
     * mount it to the container
     * Create some files
 
-    ![Preview](./Images/docker36.png)
+    ![Preview](./Images/docker36.PNG)
 
     ![Preview](./Images/docker37.png)
 
