@@ -62,9 +62,13 @@ nginx: docker service create --replicas 2 --publish mode=host,target=80,publishe
 jenkins: docker service create --replicas 2 --publish mode=host,target=8080,published=8081 jenkins/jenkins
 
 ```
-To access them we have used 8080 port of any node in cluster
+* To access them we have used 8080 port of any node in cluster
 
 ![Preview](./Images/docker62.png)
+
+* To access jenkins we have used 8081 port of any node in cluster
+
+![Preview](./Images/docker63.png)
 
 ## DOCKER CONTAINER RESTRICTIONS, LOGGING ETC
 * Run jenkins container
