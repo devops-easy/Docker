@@ -1,0 +1,1 @@
+## docker service create --replicas 2 --name nginx-srv nginx
