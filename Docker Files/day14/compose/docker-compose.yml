@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  mysqlui:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    networks:
+      - mynet
+    environment:
+      - PMA_HOST=mydb
+      - PMA_USER=root
+      - PMA_PASSWORD=rootroot
+    depends_on: 
+      - mydb
+  mydb:
+    image: mysql:8
+    volumes:
+      - mydbstore:/var/lib/mysql
+    networks:
+      - mynet
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootroot
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=appapp
+
+volumes:
+  mydbstore:
+    driver: local
+
+networks:
+  mynet: {}
